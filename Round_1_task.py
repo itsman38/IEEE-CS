@@ -9,7 +9,7 @@ from keras import Sequential
 import shap
 
 df = pd.read_csv("./dataset_aiml_task/data.csv")
-df_unique = df.groupby(df.columns[0]).first().reset_index()  # Assuming first column is the label
+df_unique = df.groupby(df.columns[0]).first().reset_index()  # In the dataset, first column is the label
 
 
 def plot_figure():
@@ -77,7 +77,7 @@ def visualize_predictions(x_test, y_pred, y_true, model_name):
     fig.suptitle(f"Predictions - {model_name}", fontsize=16)
 
     for i, ax in enumerate(axes.flat):
-        image = x_test[i].reshape(28, 28)  # Reshape image
+        image = x_test[i].reshape(28, 28)
         predicted_label = y_pred[i].argmax()
         true_label = y_true[i].argmax()
 
@@ -108,35 +108,35 @@ def create_model():
     x_train, y_train = x[:idx], y_one_hot[:idx]
     x_test, y_test = x[idx:], y_one_hot[idx:]
 
-    model1 = Sequential([
+    logistic_model = Sequential([
         Dense(10, "softmax")
     ])
-    model1.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+    logistic_model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-3),
                    loss=CategoricalCrossentropy(from_logits=False),
                    metrics=["accuracy"])
 
-    history1 = model1.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))  # Track training history
-    plot_training_history(history1, "Logistic Model")  # Plot training history
-    y1_pred = model1.predict(x_test)
-    visualize_predictions(x_test, y1_pred, y_test, "Logistic Model")  # Show predictions
+    logistic_history = logistic_model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))  # Track training history
+    plot_training_history(logistic_history, "Logistic Model")  # Plot training history
+    logistic_predict = logistic_model.predict(x_test)
+    visualize_predictions(x_test, logistic_predict, y_test, "Logistic Model")
 
 
-    model = Sequential([
+    neural_network_model = Sequential([
         Dense(128, "sigmoid"),
         Dense(64, "sigmoid"),
         Dense(10, "softmax")
     ])
 
-    model.compile(keras.optimizers.Adam(learning_rate=1e-3),
+    neural_network_model.compile(keras.optimizers.Adam(learning_rate=1e-3),
                   loss=CategoricalCrossentropy(from_logits=False),
                   metrics=["accuracy"])
 
-    history = model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
-    plot_training_history(history, "Neural Network")  # Plot training history
-    y_predict = model.predict(x_test)
+    neural_network_history = neural_network_model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
+    plot_training_history(neural_network_history, "Neural Network")  # Plot training history
+    y_predict = neural_network_model.predict(x_test)
     visualize_predictions(x_test, y_predict, y_test, "Neural Network")
 
-    y_predict = model.predict(x_test)
+    y_predict = neural_network_model.predict(x_test)
     print(y_predict)
 
     analyze(model, x_test, x_train)
